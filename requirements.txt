@@ -1,0 +1,6 @@
+gradio>=4.0.0
+faster-whisper>=0.10.0
+googletrans==4.0.0rc1
+langdetect>=1.0.9
+torch>=2.0.0
+torchaudio>=2.0.0
