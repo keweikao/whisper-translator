@@ -11,6 +11,8 @@ import re
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# 確保使用 OpenAI Whisper 而非 faster-whisper
+
 class WhisperSubtitleTranslator:
     def __init__(self):
         # 初始化 Whisper 模型 (使用較小的模型以節省記憶體)
