@@ -1,7 +1,7 @@
 import gradio as gr
 import os
 import tempfile
-from faster_whisper import WhisperModel
+import whisper
 from googletrans import Translator
 import logging
 from datetime import timedelta
@@ -21,7 +21,7 @@ class WhisperSubtitleTranslator:
         """動態載入 Whisper 模型"""
         if self.whisper_model is None:
             logger.info(f"載入 Whisper 模型: {model_size}")
-            self.whisper_model = WhisperModel(model_size, device="cpu", compute_type="int8")
+            self.whisper_model = whisper.load_model(model_size)
         return self.whisper_model
     
     def format_timestamp(self, seconds):
@@ -65,18 +65,18 @@ class WhisperSubtitleTranslator:
             
             # 轉錄音頻並保留時間戳
             logger.info("開始轉錄音頻...")
-            segments, info = model.transcribe(audio_file, beam_size=5, word_timestamps=True)
+            result = model.transcribe(audio_file)
             
             # 提取分段信息
             segments_data = []
-            for segment in segments:
+            for segment in result["segments"]:
                 segments_data.append({
-                    'start': segment.start,
-                    'end': segment.end,
-                    'text': segment.text.strip()
+                    'start': segment['start'],
+                    'end': segment['end'],
+                    'text': segment['text'].strip()
                 })
             
-            detected_language = info.language
+            detected_language = result["language"]
             logger.info(f"轉錄完成，偵測語言: {detected_language}，共 {len(segments_data)} 個片段")
             
             if not segments_data:
