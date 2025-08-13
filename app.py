@@ -345,8 +345,5 @@ if __name__ == "__main__":
     interface.launch(
         server_name=server_name,
         server_port=server_port,
-        share=True,
-        debug=False,  # 生產環境關閉 debug
-        enable_queue=True,
-        show_error=True
+        share=False
     )
