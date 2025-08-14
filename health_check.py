@@ -12,8 +12,8 @@ def check_imports():
     """檢查所有必要的導入"""
     try:
         logger.info("檢查基本導入...")
-        import gradio as gr
-        logger.info(f"✅ Gradio {gr.__version__} 導入成功")
+        import streamlit as st
+        logger.info(f"✅ Streamlit {st.__version__} 導入成功")
         
         import whisper
         logger.info("✅ OpenAI Whisper 導入成功")
