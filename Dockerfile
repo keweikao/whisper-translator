@@ -34,4 +34,4 @@ RUN python health_check.py
 EXPOSE 8080
 
 # 啟動命令
-CMD ["python", "main.py"]
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
