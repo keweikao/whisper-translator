@@ -34,4 +34,4 @@ RUN python health_check.py
 EXPOSE 8080
 
 # 啟動命令
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

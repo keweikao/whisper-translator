@@ -182,7 +182,7 @@ translator = WhisperSubtitleTranslator()
 
 # 創建 Gradio 介面
 def create_interface():
-    with gr.Blocks(title="多語言音檔轉繁中字幕", theme=gr.themes.Soft()) as interface:
+    with gr.Blocks(title="多語言音檔轉繁中字幕") as interface:
         gr.Markdown(
             """
             # 🎬 多語言音檔轉繁體中文字幕檔
@@ -252,7 +252,7 @@ def create_interface():
                     )
                     
                     bilingual_srt_file = gr.File(
-                        label="雙語字幕檔 (.srt)",
+                        label="雙語字幕檔 (.srt)", 
                         visible=False
                     )
                 
