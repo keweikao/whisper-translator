@@ -2,7 +2,7 @@ import gradio as gr
 import os
 import tempfile
 import whisper
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 import logging
 from datetime import timedelta
 import re
@@ -17,7 +17,7 @@ class WhisperSubtitleTranslator:
     def __init__(self):
         # 初始化 Whisper 模型 (使用較小的模型以節省記憶體)
         self.whisper_model = None
-        self.translator = Translator()
+        self.translator = GoogleTranslator(source='auto', target='zh-tw')
         
     def load_whisper_model(self, model_size="base"):
         """動態載入 Whisper 模型"""
@@ -97,8 +97,7 @@ class WhisperSubtitleTranslator:
                 return "沒有文字需要翻譯", ""
             
             logger.info("開始翻譯...")
-            result = self.translator.translate(text, dest='zh-tw')
-            translated_text = result.text
+            translated_text = self.translator.translate(text)
             
             logger.info("翻譯完成")
             return translated_text, ""
