@@ -99,12 +99,18 @@ class WhisperSubtitleTranslator:
             logger.info("開始翻譯...")
             translated_text = self.translator.translate(text)
             
+            # 確保返回值是字符串
+            if translated_text is None:
+                translated_text = ""
+            elif not isinstance(translated_text, str):
+                translated_text = str(translated_text)
+            
             logger.info("翻譯完成")
             return translated_text, ""
             
         except Exception as e:
             logger.error(f"翻譯錯誤: {str(e)}")
-            return "", f"翻譯錯誤: {str(e)}"
+            return "", str(e)  # 確保錯誤也是字符串
     
     def generate_srt_content(self, segments_data, translated_segments):
         """生成 SRT 字幕檔內容"""
@@ -145,7 +151,7 @@ class WhisperSubtitleTranslator:
             
             # 翻譯片段
             translated_text, translate_error = self.translate_to_traditional_chinese(original_text)
-            if translate_error:
+            if translate_error:  # translate_error 現在確保是字符串
                 return "", "", "", "", "", f"翻譯錯誤: {translate_error}"
             
             translated_segments.append(translated_text)
@@ -282,6 +288,8 @@ def create_interface():
                 
                 # 確保 include_bilingual 是布林值
                 include_bilingual = bool(include_bilingual)
+                
+                logger.info(f"處理音頻: {audio}, 模型: {model}, 雙語: {include_bilingual}")
                 
                 if include_bilingual:
                     original, language, translated, srt_content, bilingual_content, error = translator.process_audio_to_srt(audio, model, include_original=True)
