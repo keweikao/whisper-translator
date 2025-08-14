@@ -69,16 +69,26 @@ class WhisperSubtitleTranslator:
             
             with st.status("🎤 正在轉錄音頻...", expanded=True) as status:
                 st.write("載入 Whisper 模型...")
-                result = model.transcribe(audio_file)
+                
+                # 加入音頻預處理和錯誤處理
+                transcribe_options = {
+                    "fp16": False,  # 強制使用 FP32 避免張量問題
+                    "verbose": False,
+                    "condition_on_previous_text": False,  # 避免長音頻的累積錯誤
+                }
+                
+                result = model.transcribe(audio_file, **transcribe_options)
                 st.write("提取語音片段...")
                 
                 segments_data = []
                 for segment in result["segments"]:
-                    segments_data.append({
-                        'start': segment['start'],
-                        'end': segment['end'],
-                        'text': segment['text'].strip()
-                    })
+                    # 過濾掉過短或無效的片段
+                    if segment.get('text', '').strip() and (segment['end'] - segment['start']) > 0.1:
+                        segments_data.append({
+                            'start': segment['start'],
+                            'end': segment['end'],
+                            'text': segment['text'].strip()
+                        })
                 
                 detected_language = result["language"]
                 st.write(f"✅ 轉錄完成！偵測語言: {detected_language}")
@@ -89,6 +99,15 @@ class WhisperSubtitleTranslator:
             
         except Exception as e:
             logger.error(f"轉錄錯誤: {str(e)}")
+            
+            # 嘗試使用更小的模型重試
+            if model_size != "tiny":
+                logger.info("嘗試使用 tiny 模型重試...")
+                try:
+                    return self.transcribe_with_timestamps(audio_file, "tiny")
+                except:
+                    pass
+                    
             return [], "", f"轉錄錯誤: {str(e)}"
     
     def translate_to_traditional_chinese(self, text):
@@ -288,10 +307,14 @@ def main():
                     
                     with col_dl1:
                         # 繁體中文字幕下載
+                        # 清理檔案名稱，移除副檔名和特殊字符
+                        clean_filename = uploaded_file.name.rsplit('.', 1)[0]
+                        clean_filename = re.sub(r'[^\w\s-]', '', clean_filename)
+                        
                         st.download_button(
                             label="📥 下載繁體中文字幕 (.srt)",
-                            data=result['srt_content'],
-                            file_name=f"{uploaded_file.name}_中文字幕.srt",
+                            data=result['srt_content'].encode('utf-8'),
+                            file_name=f"{clean_filename}_chinese_subtitle.srt",
                             mime="text/plain; charset=utf-8",
                             type="primary"
                         )
@@ -299,10 +322,13 @@ def main():
                     with col_dl2:
                         # 雙語字幕下載
                         if include_bilingual and 'bilingual_srt' in result:
+                            clean_filename = uploaded_file.name.rsplit('.', 1)[0]
+                            clean_filename = re.sub(r'[^\w\s-]', '', clean_filename)
+                            
                             st.download_button(
                                 label="📥 下載雙語字幕 (.srt)",
-                                data=result['bilingual_srt'],
-                                file_name=f"{uploaded_file.name}_雙語字幕.srt",
+                                data=result['bilingual_srt'].encode('utf-8'),
+                                file_name=f"{clean_filename}_bilingual_subtitle.srt",
                                 mime="text/plain; charset=utf-8",
                                 type="secondary"
                             )
