@@ -349,9 +349,7 @@ if __name__ == "__main__":
         interface.launch(
             server_name=server_name,
             server_port=server_port,
-            share=False,
-            show_error=True,
-            quiet=False
+            share=True
         )
         
     except Exception as e:
