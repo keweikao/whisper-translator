@@ -27,6 +27,9 @@ RUN pip install --no-cache-dir \
 # 複製應用代碼
 COPY . .
 
+# 運行健康檢查
+RUN python health_check.py
+
 # 暴露端口
 EXPOSE 8080
 

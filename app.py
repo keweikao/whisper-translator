@@ -334,15 +334,28 @@ def create_interface():
     return interface
 
 if __name__ == "__main__":
-    # 創建並啟動介面
-    interface = create_interface()
-    
-    # 從環境變數獲取配置
-    server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
-    server_port = int(os.getenv("GRADIO_SERVER_PORT", "8080"))
-    
-    interface.launch(
-        server_name=server_name,
-        server_port=server_port,
-        share=False
-    )
+    try:
+        logger.info("正在啟動字幕生成服務...")
+        
+        # 創建並啟動介面
+        interface = create_interface()
+        
+        # 從環境變數獲取配置
+        server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
+        server_port = int(os.getenv("GRADIO_SERVER_PORT", "8080"))
+        
+        logger.info(f"啟動服務於 {server_name}:{server_port}")
+        
+        interface.launch(
+            server_name=server_name,
+            server_port=server_port,
+            share=False,
+            show_error=True,
+            quiet=False
+        )
+        
+    except Exception as e:
+        logger.error(f"啟動失敗: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
