@@ -38,7 +38,7 @@ def check_translator():
     try:
         logger.info("檢查翻譯器...")
         from deep_translator import GoogleTranslator
-        translator = GoogleTranslator(source='auto', target='zh-tw')
+        translator = GoogleTranslator(source='auto', target='zh-TW')
         result = translator.translate("Hello")
         logger.info(f"✅ 翻譯測試成功: {result}")
         return True

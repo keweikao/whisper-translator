@@ -17,7 +17,7 @@ class WhisperSubtitleTranslator:
     def __init__(self):
         # 初始化 Whisper 模型 (使用較小的模型以節省記憶體)
         self.whisper_model = None
-        self.translator = GoogleTranslator(source='auto', target='zh-tw')
+        self.translator = GoogleTranslator(source='auto', target='zh-TW')
         
     def load_whisper_model(self, model_size="base"):
         """動態載入 Whisper 模型"""
