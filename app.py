@@ -129,10 +129,10 @@ class WhisperSubtitleTranslator:
         segments_data, detected_language, transcribe_error = self.transcribe_with_timestamps(audio_file, model_size)
         
         if transcribe_error:
-            return "", "", "", "", transcribe_error
+            return "", "", "", "", "", transcribe_error
         
         if not segments_data:
-            return "", "", "", "", "無法從音頻中提取文字"
+            return "", "", "", "", "", "無法從音頻中提取文字"
         
         # 步驟 2: 翻譯每個片段
         logger.info("開始翻譯片段...")
@@ -146,7 +146,7 @@ class WhisperSubtitleTranslator:
             # 翻譯片段
             translated_text, translate_error = self.translate_to_traditional_chinese(original_text)
             if translate_error:
-                return "", "", "", "", f"翻譯錯誤: {translate_error}"
+                return "", "", "", "", "", f"翻譯錯誤: {translate_error}"
             
             translated_segments.append(translated_text)
         
@@ -169,7 +169,7 @@ class WhisperSubtitleTranslator:
             
             return "\n".join(original_texts), detected_language, "\n".join(translated_segments), srt_content, bilingual_srt, ""
         
-        return "\n".join(original_texts), detected_language, "\n".join(translated_segments), srt_content, ""
+        return "\n".join(original_texts), detected_language, "\n".join(translated_segments), srt_content, "", ""
 
 # 初始化翻譯器
 translator = WhisperSubtitleTranslator()
@@ -274,6 +274,15 @@ def create_interface():
         # 處理函數
         def process_audio_wrapper(audio, model, include_bilingual):
             try:
+                # 確保參數類型正確
+                if audio is None:
+                    return ("", "", "", 
+                           gr.update(visible=False), gr.update(visible=False),
+                           gr.update(value="請上傳音頻檔案", visible=True))
+                
+                # 確保 include_bilingual 是布林值
+                include_bilingual = bool(include_bilingual)
+                
                 if include_bilingual:
                     original, language, translated, srt_content, bilingual_content, error = translator.process_audio_to_srt(audio, model, include_original=True)
                     
