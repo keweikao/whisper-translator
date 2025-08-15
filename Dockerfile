@@ -4,6 +4,8 @@ FROM python:3.9-slim
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     git \
+    wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 升級 pip 並設置超時參數
@@ -33,5 +35,9 @@ RUN python health_check.py
 # 暴露端口
 EXPOSE 8080
 
+# 複製啟動腳本
+COPY start.sh .
+RUN chmod +x start.sh
+
 # 啟動命令
-CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8080", "--server.address=0.0.0.0"]
+CMD ["./start.sh"]

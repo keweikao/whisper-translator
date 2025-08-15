@@ -6,7 +6,7 @@ import streamlit as st
 import tempfile
 import logging
 from pathlib import Path
-from datetime import timedelta
+from datetime import timedelta, datetime
 import re
 import whisper
 from deep_translator import GoogleTranslator
@@ -31,8 +31,21 @@ class WhisperSubtitleTranslator:
     @st.cache_resource
     def load_whisper_model(_self, model_size="base"):
         """動態載入 Whisper 模型（使用 Streamlit 緩存）"""
+        import gc
+        import torch
+        
         logger.info(f"載入 Whisper 模型: {model_size}")
-        return whisper.load_model(model_size)
+        
+        # 清理記憶體
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            
+        # 載入模型時使用 CPU 並節省記憶體
+        model = whisper.load_model(model_size, device="cpu")
+        
+        logger.info(f"模型載入完成，使用設備: cpu")
+        return model
     
     def format_timestamp(self, seconds):
         """將秒數轉換為 SRT 時間格式 (HH:MM:SS,mmm)"""
@@ -398,5 +411,24 @@ def main():
         - **輸出**: SRT 字幕檔案
         """)
 
+@st.cache_data
+def health_check():
+    """健康檢查端點"""
+    return {"status": "healthy", "timestamp": str(datetime.now())}
+
+# 添加健康檢查路由
+if st.sidebar.button("🏥 健康檢查", help="檢查服務狀態"):
+    health = health_check()
+    st.sidebar.success(f"✅ 服務正常 - {health['timestamp']}")
+
 if __name__ == "__main__":
+    # 添加記憶體監控
+    import psutil
+    import os
+    
+    # 記錄啟動時的記憶體使用
+    process = psutil.Process(os.getpid())
+    memory_info = process.memory_info()
+    logger.info(f"啟動記憶體使用: {memory_info.rss / 1024 / 1024:.2f} MB")
+    
     main()

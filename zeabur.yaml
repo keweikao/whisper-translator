@@ -1,0 +1,18 @@
+services:
+  whisper-translator:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+    restart_policy: always
+    resources:
+      memory: 3072Mi
+      cpu: 1500m
+    ports:
+      - "8080:8080"
